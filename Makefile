@@ -22,11 +22,8 @@
 CC     = gcc
 CFLAGS = -g -Wall -O0 -std=c99 -D_SVID_SOURCE
 
-greedy04:	greedy04.o edgeList.o loadWgtGraph.o
-	${CC}  -o  greedy04 greedy04.o edgeList.o loadWgtGraph.o
-
-#intList.o:	intList.c  intList.h
-#	${CC}  -c  ${CFLAGS}  intList.c
+greedy04:	greedy04.o edgeList.o loadWgtGraph.o minPQ.o
+	${CC}  -o  greedy04 greedy04.o edgeList.o loadWgtGraph.o minPQ.o
 
 edgeList.o:	edgeList.c  edgeList.h
 	${CC}  -c  ${CFLAGS}  edgeList.c
@@ -34,12 +31,12 @@ edgeList.o:	edgeList.c  edgeList.h
 loadWgtGraph.o:	loadWgtGraph.c  loadWgtGraph.h
 	${CC}  -c  ${CFLAGS}  loadWgtGraph.c
 
-#dfsTrace.o:	dfsTrace.c  dfsTrace.h
-#	${CC}  -c  ${CFLAGS}  dfsTrace.c
+minPQ.o:	minPQ.c  minPQ.h
+	${CC}  -c  ${CFLAGS}  minPQ.c
 
 greedy04.o:	greedy04.c
 	${CC}  -c  ${CFLAGS}  greedy04.c
 
 clean:
-	rm *.o
+	rm *.o greedy04
 

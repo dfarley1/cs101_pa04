@@ -1,3 +1,6 @@
+//Daniel Farley - dfarley@ucsc.edu
+//CMPS 101 - Van Gelder
+
 /* minPQ.h (what is the purpose of this file? Replace this question.)
 */
 
