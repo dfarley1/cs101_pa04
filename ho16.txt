@@ -1,0 +1,420 @@
+CMPS 101 Fall 2015         HANDOUT 16              Nov.\ 20, 2015
+
+4TH PROGRAM, Submit by Wed., Dec.\ 02 by 11:59:59 PM.
+
+This file is /afs/cats.ucsc.edu/courses/cmps101-avg/Handouts/ho16.txt
+on unix.ic, as well as being in the Handouts directory off the class web page.
+
+NOTE:  The program is due two days before the third midterm, but it is closely
+tied to the material for that exam, so it will be advantageous for you
+to have it working so you can check your answers on the practice exam,
+ho15-practice-mid3.pdf.
+
+There is a lot to do besides write C code.  Start early.
+LATE SUBMISSIONS CANNOT BE ACCEPTED.  Attend scheduled labs for help.
+
+==========================================================================
+
+CERTIFICATION
+
+For your submission to receive a grade you must submit a file named
+README that has certain text near the beginning, as follows:
+
+1. The sentence:
+"I have read and understood the Academic Misconduct Policy for
+Undergraduates, the related sections 102.01-102.016 and 105.15 of the
+UC Santa Cruz Student Policies and Regulations Handbook,
+and the related sections of the class syllabus."
+followed by your name as a signature.
+
+The documents may be found at:
+    http://www.ue.ucsc.edu/academic_misconduct
+    http://deanofstudents.ucsc.edu/student-conduct/student-handbook
+        (scroll down and click on Section 100.00)
+    http://classes.soe.ucsc.edu/cmps101/Fall15/Handouts/ho01.pdf
+
+2. If the assignment was not written entirely by you, cite the sources you
+   used OTHER THAN those listed (as generalities) in the syllabus ho01.pdf
+   as permitted sources, or those mentioned specifically in the assignment.
+
+   DO NOT cite the text or handouts or files supplied for the class.
+
+   For any cited sources, state how they got included, whether it was
+   copy-paste, email, file copy, download, etc.
+
+   If you have nothing to list, write the sentence
+   "I wrote this assignment using only permitted sources
+   that do not require citation, according to the syllabus."
+
+ASSIGNMENTS WITHOUT PARTS 1 AND 2 ABOVE WILL NOT BE GRADED>
+
+After the above text, the rest of your README will be information
+about your submitted program.
+
+This rule is needed because many students copied from unauthorized
+sources and presented it as their own work in recent quarters.
+THIS IS PLAGIARISM.  Reread the syllabus (ho01.pdf) for more details.
+
+==========================================================================
+
+READING
+
+Read the text, chapter 8 for explanations of how the the MST (Prim) and
+the SSSP (Dijkstra) algorithms are based on priority queues.
+Be sure to read 8.2.5 and 8.3.3.  The table in Fig. 8.5 is transposed
+compared to how it is shown in lecture and should be printed for the
+assignment.
+
+Several online Unix tutorials are mentioned on the class web page.
+Some gdb tutorials are mentioned in the message list.
+
+==========================================================================
+
+INFORMATION SOURCES
+
+Same as ho04.txt, the 1st program assignment.
+
+edgeList.h and minPQ.h are provided in the class locker and in Handouts
+directories off the class locker and the class web page.
+
+These files are for the ADTs EdgeList and MinPQ.  You will implement
+edgeList.c and minPQ.c for pa04.  Your edgeList.o and minPQ.o should be
+usable by other students and your greedy04 should be able to use theirs.
+
+Your pa02 assignment has a lot of the code needed for pa04, if it was
+fully implemented.  pa03 also should have much of this code.
+==========================================================================
+
+ADT OVERVIEW
+
+This assignment has an EdgeList ADT that carries over from pa02 and pa03.
+It has a new ADT MinPQ that is more substantial as an ADT than EdgeList
+because it maintains state and has manipulation procedures.  Yet, in the
+interest of easy reporting, the information is not hidden.
+
+The IntList ADT is not used in pa04 (at least it is not required; you
+might find a use in some subroutine, but that is your choice.)
+
+==========================================================================
+
+PROGRAM REQUIREMENTS
+
+You will implement Prim's Minimum Spanning Tree algorithm (MST)
+as explained in the text, Ch. 8.
+It will also be able to execute Dijkstra's Shortest-Path algorithm (SSSP),
+based on a command-line option.
+The only differences between the algorithms is the function to calculate
+priority and whether the graph is undirected or directed.
+
+graph01.c, LoadGraph.c, etc., can be used right from your pa01,
+except that input edges are treated as UNDIRECTED for MST and have weights
+in all cases.
+Alternatively, use dfs02.c or scc03.c from pa02 or pa03 as a starter.
+In either case,
+
+NAME YOUR MAIN PROGRAM greedy04.c AND COMPILE IT INTO THE EXECUTABLE greedy04.
+
+The "main" procedure will be changed to do different things
+after the graph is loaded.
+Procedures in this file will allocate the arrays filled by greedyTree():
+status, fringeWgt, parent.
+
+greedyTree() is our name for the function that runs either MST or SSSP.
+SEE pp. 397-402 FOR JAVA PSEUDOCODE.
+SEE pp. 397-402 FOR JAVA PSEUDOCODE.
+SEE pp. 397-402 FOR JAVA PSEUDOCODE.
+Note that primMST() in the text allocates "status" because it is not
+referenced by the caller of primMST(), whereas fringeWgt and parent are
+used by the caller, so they are allocated earlier and passed in.
+However, this program outputs status, as well as fringeWgt and parent,
+so you should allocate all three arrays in one place (probably main())
+and pass them all in to greedyTree().
+The prototype for greedyTree() will change accordingly.
+
+We'll follow the C convention of lowercase file names, but type names
+will remain capitalized.  The correspondences follow the same pattern
+as earlier programs.
+
+
+==========================================================================
+
+INPUT FORMAT
+
+Input consists of a sequence of lines read from the file
+that was given as a command-line argument.  The string "-" as a filename
+stands for ``standard input'', as usual.
+Standard input is called System.in for java and stdin for C.
+We will use stdin to denote either case.
+
+End-of-file signals the end of input, and is typed on the keyboard
+as cntl-D in Unix (maybe cntl-Z in DOS, Windows, etc.).
+
+Lines will have the format expected by graph01.c, WITH weights.
+One int on the first line to tell us the value of "n".
+Two ints and a double per line for each edge after that.
+Set up your calls to sscanf to look for these formats.
+Use " %d %d %lf" or " %d %d %lf %c" to check for extra junk.
+
+Print an informative error message if the input contains a bad vertex
+number, outside 1,...,n, or has the wrong number of words on a line.
+This is for your own good; not a grading issue.
+
+Example input:
+3
+1 2 4.5
+2 3 1.5
+1 3 2.5
+3 2 1.0
+The above is just an example of the format.
+It is NOT suggested as a good test file.
+
+Remember that graphs want to start on index 1, not index 0.
+So allocate 1 extra space in the array and start loading at 1.
+
+You should make some test files that properly test the algorithms.
+Extensive testing for syntax errors in the input is unnecessary.
+See the examples in the text, and especially those in the homework
+exercises and practice midterm.  The above is just an example of the format.
+
+Whether the input is treated as undirected or directed depends on a
+command-line argument, as described next.
+If the graph is considered undirected, create an edge in each direction
+from one edge in the input file.  In the above example, for an
+undirected graph "1 2 4.5" should result in edges (1,2) and (2,1),
+both with weight 4.5.
+
+Do not worry if edges are not unique.  MST will work anyway.
+In the above example, you would get parallel edges (2,3) with weights
+1.5 and 1.0 for the undirected graph, as well as edges (3,2) with weights
+1.5 and 1.0.
+
+==========================================================================
+
+COMMAND-LINE ARGUMENTS
+
+If your program receives no command-line arguments, it should print
+a usage message and exit.
+Your program must receive at least three command-line arguments to
+define its task.
+
+Initial command-line arguments of the form "-something" provide
+the means for varying what the program does.  One such argument MUST be
+present, to choose among Prim (-P) and Dijkstra (-D).
+Depending on this argument, the program sets a variable
+named "task" and passes it to other functions to vary their computations
+slightly according to which algorithm is being run.
+Set the value of "task" to 'P' or 'D' according to what is in
+the command line.
+
+The second-to-last command-line argument is an integer that gives the
+START VERTEX for the algorithm to use.
+The final command-line argument is the name of the input file
+containing the weighted graph.
+This name will not begin with a "-" unless it is "-" by itself,
+in which case the ``file'' is stdin.
+
+Examples (in C);
+
+Prim MST starting at vertex 7
+	greedy04 -P 7 graph1.txt
+
+Dijkstra SSSP starting at vertex 1
+	greedy04 -D 1 graph1.txt
+
+Notice that the command-line format is an extension of pa02.
+
+==========================================================================
+
+OUTPUT
+
+Print information on stdout.
+Essentially, output the arrays filled by the algorithm.  Show columns
+for vertex number, status, priority (cost, depending on which task), parent.
+Print a heading that states which algorithm was run and what the
+start vertex is.
+
+DEBUGGING HINT: Let your printArrays() procedure/function/method return
+an int, so it looks like a function.  It may always return 0.
+This allows you run it from gdb in the middle of your program,
+by typing "p printArrays()", assuming it takes no parameters.
+
+When running the program on a large input file remember to use ">"
+to redirect the stdout to a file.
+
+
+==========================================================================
+
+HOW TO PROCEED
+
+Make a new directory to work in.  Do this first.
+
+Copy graph01.c to a new name, say greedy04.c.
+Copy intList.c and intList.h and Makefile from pa01 into this directory.
+Confirm that graph01 compiles and works.
+From now on graph01.c, intList.c and intList.h are not used, except
+as a reference to be sure you did not change anything by accident.
+DON'T SUBMIT graph01.c, intList.c and intList.h.
+
+If pa01 was not working use pa02 or pa03 files for your starters,
+whichever was working best.  Copy them into this directory.
+Then do the above steps on them.
+
+Now you are ready to start building the MST/SSSP procedures.  Refer to code
+from your earlier programs if they were working.  Use working code
+for a starter on new code whenever possible.
+
+One difference in loadGraph.c from pa03 is that pa03 reads
+directed unweighted edges and now you need undirected weighted or
+directed weighted edges, depending on the task.
+Also the edge lists are weighted, which is different.
+Use loadGraph.{c,h} as starters for loadWgtGraph.{c,h} and make changes
+in the new files.
+
+Use edgeList.h in the course locker as your starter and add your comments
+that answer the questions in that file.  DO NOT CHANGE SPELLING.
+
+Keep life simple and make a function to compute the priority
+that takes a parameter named "task" to vary how priority
+is computed.  Set the value of "task" to 'P' or 'D' according
+to what is in the command line.
+
+==========================================================================
+
+Implementation plan for MST/SSSP in C
+
+File            Module         Important Public Fields and Functions
+
+greedy04.{c,h}  greedy04       main()
+                               greedyTree() as in text as MST or SSSP
+                                   See pp. 397-402.
+                               updateFringe()  as in text, but calls ...
+			       calcPriority() to calculate the priority.
+                               printOutput()
+
+                               int n               // number of vertices
+                               EdgeList * adjInfo  (instead of adjVertices).
+
+                               int task            // 'P' or 'D'
+
+                               int s               // start vertex
+                               int * status
+                               int * parent
+                               double * fringeWgt
+
+loadWgtGraph.{c,h} LoadWgtGraph  parseN(), initEdges(), loadEdges(), etc.,
+                                   mostly as in the Appendix, but
+                                   adjInfo is an array of EdgeList now,
+                                   not IntList.  Also, task should be passed
+                                   in to tell whether to treat the graph as
+                                   undirected.
+
+minPQ.{c,h}     MinPQ          (ADT) mostly as in text, pp. 400-402.
+                                     minPQ.h starter is in course locker.
+                                     DO NOT CHANGE PROTOTYPES; add comments
+
+                                     As discussed in the text, this
+                                     Priority Queue ADT should be faithful
+                                     to the specifications of the
+                                     operations.  However, the arrays
+                                     are not private, like they should
+                                     be for a ``pure'' ADT.  Therefore,
+                                     the main() procedure can access info
+                                     about a vertex directly, without
+                                     going through access functions,
+                                     for printing purposes, mainly.
+
+edgeList.{c,h}  EdgeList       (ADT) edgeCons(), edgeFirst(), edgeRest(),
+                                     constant edgeNil
+                                     list of elements of type EdgeInfo.
+                                     edgeList.h starter is in course locker.
+                                     DO NOT CHANGE PROTOTYPES; add comments
+
+edgeList.h      EdgeInfo       (NON-ADT) struct and typedef: to, wgt.
+
+intList.{c,h}   IntList        (ADT) (a starter for edgeList.{c,h}, but
+                                     not used in the final program).
+
+==========================================================================
+
+A few technical notes:
+
+All uses of "float" in the text are changed to "double" here.
+
+The appendix code had no global variables, but your 3rd program
+might have.  pa04 should have no extern variables shared across files,
+except for the constant edgeNil.
+Refer to intNil in earlier programs for an example of working with
+edgeNil as an extern variable.
+
+Although you should not use global variables that are shared across files,
+you can define "static" variables for important "public" variables,
+such as n, task, s, in greedy04.c.
+Outside of any function put something like this:
+
+static int n;
+static int task;
+static int s;
+
+minPQ.c should have static variables too, initialized by createPQ().
+
+minPQ.h defines the values for the status as:
+#define UNSEEN ('u')
+#define FRINGE ('f')
+#define INTREE ('t')
+Note that single characters can be type int.
+==========================================================================
+
+EdgeList ADT
+
+Notice that edgeList.h contains all the details of the EdgeInfo struct,
+but does not show details of the EdgeListNode struct.
+This gives flexibility in how that list is implemented.
+
+Essentially the type "EdgeInfo" replaces the type "int" as the data type
+for this kind of list.  It would not be of much use if the clients
+did not know the details of EdgeInfo.
+
+==========================================================================
+
+SUBMITTING
+
+The assignment name is pa04.  An example (incomplete) submit command is:
+
+  submit cmps101-avg.f15 pa04  greedy04.c  EdgeList.c EdgeList.h   Makefile
+
+You can list as many files as you want to submit.  If you update files,
+just submit them again.  Don't resubmit unchanged files needlessly.
+
+DO NOT SUBMIT LARGE INPUT FILES OR LARGE OUTPUT FILES.
+
+If you submit irrelevant junk, you will lose a fast 20 points.
+It's a good policy to explain in your README any file that is not
+obviously part of your program.
+
+You have to put your documentation in your .h files, for data and
+functions shared by multiple files, as described in adt-c.pdf.
+
+Submit a README that briefly describes your program with a few sentences,
+mainly to tell the reader how to run it, what test inputs and outputs
+you supplied, what they show, and any known bugs.
+If the purpose of some files might be mysterious, here is the place to
+explain them.
+
+==========================================================================
+
+All code to be graded should follow good style practices including
+appropriate indentation, descriptive names, consistent capitalization,
+and useful comments.  Comments should indicate the purpose, preconditions,
+and postconditions of important procedures.  Avoid comments of
+self-explanatory code.  The reader may grade your program low
+if it is sloppily done, making it hard to understand or follow.
+RESPECT THE READER'S TIME.
+
+=========================================================================
+
+USEFUL UNIX COMMANDS AND EDITOR SKILLS
+
+Same as ho05.txt.  Try to learn a new one every day or two, and they'll
+make your life a lot easier.  They will be on the midterm, too.
+
+==========================================================================
