@@ -6,71 +6,34 @@
 #include <string.h>
 
 #include "loadWgtGraph.h"
-//#include "dfsTrace.h"
+#include "minPQ.h"
+
+int checkArgs(int argc, char **argv, char *task);
+FILE* openFile(int argc, char **argv, char *task, int *s);
+int parseN(FILE* inbuff, int s);
+
+void greedyTree(EdgeList* adjInfo, int n, int s, int* parent, int* status, double* fringeWgt, char task);
+void updateFringe(MinPQ pq, EdgeList adjInfoOfV, int v, char task);
+double calcPriority(MinPQ pq, EdgeInfo wInfo, int v,char task);
+int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s);
 
 int main (int argc, char **argv) 
 {
-    int m = 0, n = 0, s = 0;
+    int m = 0;
     char task = '\0';
-    FILE* inbuff = NULL;
-    char linebuff[1024];
+    
+    int s = checkArgs(argc, argv, &task);
+    FILE* inbuff = openFile(argc, argv, &task, &s);
+    int n = parseN(inbuff, s);
 
-    //check arg count
-    if (argc != 4) {
-        fprintf(stderr, "Usage: [-P/D] start_vertex FILE\n");
-        exit(1);
-    }
-    
-    //get task
-    task = argv[1][1];
-    if (strlen(argv[1]) != 2 || (task != 'P' && task != 'D')){
-        fprintf(stderr, "  Error: Invalid first argument.\n  Usage: [-P/D] start_vertex FILE\n");
-        exit(1);
-    }
-    
-    //get startvertex
-    ;
-    if ((sscanf(argv[2], "%d", &s) != 1) || (s < 1)) {
-        fprintf(stderr, "  Error: Invalid second argument.\n  Usage: [-P/D] start_vertex FILE\n");
-        exit(1);
-    }
-    
-    //open file/stdin
-    if (strcmp(argv[3], "-") != 0) {
-        inbuff = fopen(argv[3], "r");
-        if (inbuff == NULL) {
-            fprintf(stderr, "  Error: Invalid file.\n  Usage: [-P/D] start_vertex FILE\n");
-            exit(1);
-        }
-        printf("Opened %s for input.\n", argv[3]);
-    } else {
-        inbuff = stdin;
-        printf("Opened stdin for input.\n");
-    }
-    
-    //make intlist array
-    //print "n="
-    if (fgets(linebuff, 1024, inbuff) == NULL) {
-        printf("  Error: Empty file.\n  Usage: [-P/D] start_vertex FILE\n");
-        exit(0);
-    }
-    if ((sscanf(linebuff, "%d", &n) != 1) || (n < 1)) {
-        fprintf(stderr, "  Error: Bad line 1: %s\n", linebuff);
-        exit(1);
-    }
-    if (s > n) {
-        fprintf(stderr, "  Error: start_vertex (%d)> n (%d).\n", s, n);
-        exit(1);
-    }
-    printf("n = %d\n", n);
-    
     //load graph
     EdgeList* adjInfo = initEdges(n);
     m = loadEdges(inbuff, adjInfo, n, task);
     fclose(inbuff);
-    printf("m = %d\n", m);
         
     //print table
+    printf("n = %d\n", n);
+    printf("m = %d\n", m);
     int i;
     for(i = 1; i <= n; i++) {
         printf("%d\t%s\n", i, toString(adjInfo[i]));
@@ -80,52 +43,118 @@ int main (int argc, char **argv)
     int* parent = calloc(n+1, sizeof(int));
     double* fringeWgt = calloc(n+1, sizeof(double));
     
-
-    /*
-    if (weighted) {
-        //Initialize the table
-        printf("n = %d\n", n);
-        EdgeList* adjWeightedVertices = initWeightedEdges(n);
-        
-        m = loadWeightedEdges(inbuff, adjWeightedVertices, n, undirected);
-        fclose(inbuff);
-        printf("m = %d\n", m);
-        
-        //print table
-        int i;
-        for(i = 1; i <= n; i++) {
-            printf("%d\t%s\n", i, toWeightedString(adjWeightedVertices[i]));
-        }
-        
-        
-    } else {
-        //Initialize the table
-        printf("n = %d\n", n);
-        adjVertices = initEdges(n);
-        
-        //load table
-        m = loadEdges(inbuff, adjVertices, n, undirected);
-        fclose(inbuff);
-        printf("m = %d\n", m);
-        
-        //print table
-        int i;
-        for(i = 1; i <= n; i++) {
-            printf("%d\t%s\n", i, toString(adjVertices[i]));
-        }
-        
-        int* color = calloc(n+1, sizeof(int));
-        int* dTime = calloc(n+1, sizeof(int));
-        int* fTime = calloc(n+1, sizeof(int));
-        int* parent = calloc(n+1, sizeof(int));
-        
-        dfsTrace(adjVertices, n, color, dTime, fTime, parent);
-    }
-    */
+    greedyTree(adjInfo, n, s, parent, status, fringeWgt, task);
+    
+    PrintArrays(parent, status, fringeWgt, task, s);
     
     exit(0);
 }
 
-//TODO: updateFringe()
-//TODO: calcPriority()
-//TODO: printOutput()
+int checkArgs(int argc, char **argv, char *task)
+{
+    if (argc != 4) {
+        fprintf(stderr, "Usage: [-P/D] start_vertex FILE\n");
+        exit(1);
+    }
+    
+    *task = argv[1][1];
+    if (strlen(argv[1]) != 2 || (*task != 'P' && *task != 'D')){
+        fprintf(stderr, "  Error: Invalid first argument.\n  Usage: [-P/D] start_vertex FILE\n");
+        exit(1);
+    }
+    
+    int s = 0;
+    if ((sscanf(argv[2], "%d", &s) != 1) || (s < 1)) {
+        fprintf(stderr, "  Error: Invalid second argument.\n  Usage: [-P/D] start_vertex FILE\n");
+        exit(1);
+    }
+    
+    return s;
+}
+
+FILE* openFile(int argc, char **argv, char *task, int *s)
+{
+    FILE* inbuff = NULL;
+    
+    if (strcmp(argv[3], "-") != 0) {
+        inbuff = fopen(argv[3], "r");
+        if (inbuff == NULL) {
+            fprintf(stderr, "  Error: Invalid file.\n  Usage: [-P/D] start_vertex FILE\n");
+            exit(1);
+        }
+    } else {
+        inbuff = stdin;
+    }
+    
+    return inbuff;
+}
+
+int parseN(FILE* inbuff, int s)
+{
+    int n = 0;
+    char linebuff[1024];
+    
+    if (fgets(linebuff, 1024, inbuff) == NULL) {
+        printf("  Error: Empty file.\n  Usage: [-P/D] start_vertex FILE\n");
+        exit(0);
+    }
+    if ((sscanf(linebuff, "%d", &n) != 1) || (n < 1)) {
+        fprintf(stderr, "  Error: Bad line 1: %s\n", linebuff);
+        exit(1);
+    }
+    if (s > n) {
+        fprintf(stderr, "  Error: start_vertex(%d) > n(%d).\n", s, n);
+        exit(1);
+    }
+    
+    return n;
+}
+
+void greedyTree(EdgeList* adjInfo, int n, int s, int* parent, int* status, double* fringeWgt, char task)
+{
+    MinPQ pq = createPQ(n, status, fringeWgt, parent);
+    
+    insertPQ(pq, s, 0, -1);
+    while (!isEmptyPQ(pq)) {
+        int v = getMin(pq);
+        delMin(pq);
+        updateFringe(pq, adjInfo[v], v, task);
+    }
+}
+
+void updateFringe(MinPQ pq, EdgeList adjInfoOfV, int v, char task)
+{
+    //double myDist = pq.fringeWgt[v];
+    EdgeList remAdj = adjInfoOfV;
+    while (remAdj != edgeNil) {
+        EdgeInfo wInfo = edgeFirst(remAdj);
+        int w = wInfo.to;
+        double newWgt = calcPriority(pq, wInfo, v, task);
+        if (getStatus(pq, w) == UNSEEN) {
+            insertPQ(pq, w, newWgt, v);
+        } else if (getStatus(pq, w) == FRINGE) {
+            if (newWgt < getPriority(pq, w)) {
+                decreaseKey(pq, w, newWgt, v);
+            }
+        }
+        remAdj = edgeRest(remAdj);
+    }
+}
+
+double calcPriority(MinPQ pq, EdgeInfo wInfo, int v,char task)
+{
+    if (task == 'P') {
+        return wInfo.wgt;
+    } else if (task == 'D') {
+        return getPriority(pq, v) + wInfo.wgt;
+    } else {
+        fprintf(stderr, "  Error: Invalid task!");
+        exit(1);
+    }
+    return 0.0; //Stupid compiler warning
+}
+
+int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s)
+{
+    
+}
