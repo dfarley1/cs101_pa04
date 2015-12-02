@@ -9,3 +9,46 @@ I wrote this assignment using only permitted sources that do not require
 citation, according to the syllabus.
 
 ===============================================================================
+Usage: greedy04 [-P/D] start_vertex FILE
+
+This program reads in a weighted graph from a specified file or stdin (specify
+"-" as the file).  It performs either a Prim's MST algorithm or Dijkstra's SSSP 
+algorithm depending on the first argument.  The results of the algorithm are
+then printed in a table.
+
+
+Test file:
+    test0.in is a graph taken from pg. 407 of the textbook. It has a somewhat
+arbitrary direction that is not described in the book.  Expected output is:
+
+greedy04 -P 3 test0.in:
+    V | status | priority | parent
+    --------------------------------
+    1 |   t    |    2.0   |   2
+    2 |   t    |    4.0   |   3
+    3 |   t    |    0.0   |   -1
+    4 |   t    |    2.0   |   3
+    5 |   t    |    1.0   |   4
+    6 |   t    |    1.0   |   9
+    7 |   t    |    2.0   |   9
+    8 |   t    |    1.0   |   4
+    9 |   t    |    3.0   |   5
+
+
+greedy04 -D 2 test0.in:
+    V | status | priority | parent
+    --------------------------------
+    1 |   u    |    0.0   |   0
+    2 |   t    |    0.0   |   -1
+    3 |   t    |    4.0   |   2
+    4 |   t    |    6.0   |   3
+    5 |   t    |    7.0   |   4
+    6 |   t    |   13.0   |   5
+    7 |   t    |    6.0   |   2
+    8 |   t    |    7.0   |   4
+    9 |   t    |    8.0   |   7
+    
+Known bugs:
+    There are likely several bugs when checking arguments and reading numbers
+from a file, some reasonable measures were taken to sanitize inputs but it 
+is hardly foolproof.  

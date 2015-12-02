@@ -15,7 +15,7 @@ int parseN(FILE* inbuff, int s);
 void greedyTree(EdgeList* adjInfo, int n, int s, int* parent, int* status, double* fringeWgt, char task);
 void updateFringe(MinPQ pq, EdgeList adjInfoOfV, int v, char task);
 double calcPriority(MinPQ pq, EdgeInfo wInfo, int v,char task);
-int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s);
+int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s, int n);
 
 int main (int argc, char **argv) 
 {
@@ -45,7 +45,7 @@ int main (int argc, char **argv)
     
     greedyTree(adjInfo, n, s, parent, status, fringeWgt, task);
     
-    PrintArrays(parent, status, fringeWgt, task, s);
+    PrintArrays(parent, status, fringeWgt, task, s, n);
     
     exit(0);
 }
@@ -141,7 +141,7 @@ void updateFringe(MinPQ pq, EdgeList adjInfoOfV, int v, char task)
     }
 }
 
-double calcPriority(MinPQ pq, EdgeInfo wInfo, int v,char task)
+double calcPriority(MinPQ pq, EdgeInfo wInfo, int v, char task)
 {
     if (task == 'P') {
         return wInfo.wgt;
@@ -154,7 +154,15 @@ double calcPriority(MinPQ pq, EdgeInfo wInfo, int v,char task)
     return 0.0; //Stupid compiler warning
 }
 
-int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s)
+int PrintArrays(int* parent, int* status, double* fringeWgt, char task, int s, int n)
 {
-    
+    printf("Running %s algorithm starting at vertex %d.\n", 
+            (task == 'P')?("Prim's"):("Dijkstra's"), s);
+    printf("  V | status | priority | parent\n");
+    printf("--------------------------------\n");
+    for (int i = 1; i <= n; i++) {
+        printf("  %d |   %c    |   %4.1f   |   %d\n", 
+                i, status[i], fringeWgt[i], parent[i]);
+    }
+    return 0;
 }

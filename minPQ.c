@@ -9,7 +9,8 @@
 #include "minPQ.h"
 
 struct MinPQNode {
-    int numVertices, numPQ;
+    int numVertices;
+    int numPQ;
     int minVertex;
     double oo;
     int* status;
