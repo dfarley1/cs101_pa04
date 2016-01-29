@@ -1,14 +1,3 @@
-I have read and understood the Academic Misconduct Policy for Undergraduates, 
-the related sections 102.01–102.016 and 105.15 of the UC Santa Cruz Student 
-Policies and Regulations Handbook, and the related sections of the class 
-syllabus.
-
-Daniel Farley
-
-I wrote this assignment using only permitted sources that do not require 
-citation, according to the syllabus.
-
-===============================================================================
 Usage: greedy04 [-P/D] start_vertex FILE
 
 This program reads in a weighted graph from a specified file or stdin (specify
